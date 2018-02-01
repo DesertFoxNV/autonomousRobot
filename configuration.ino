@@ -1,7 +1,7 @@
 void setPins() {
 
   // Attach Servo
-  laserServo.attach(37);
+  laserServo.attach(servoPin);
 
   // Set Motor Pins
   pinMode(rightMotorPin1, OUTPUT);
@@ -14,4 +14,7 @@ void setPins() {
   digitalWrite(rightMotorPin2, HIGH);
   digitalWrite(leftMotorPin1, LOW);
   digitalWrite(leftMotorPin2, HIGH);
+
+  // Set Voltage Pin
+  pinMode(A8, INPUT);
 }

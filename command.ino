@@ -64,8 +64,16 @@ void runCommand(String commandList[], int numberOfCommands){
   }else if(commandList[0] == "solidStateRelay.off" && commandReceived()){
     solidStateRelay.off();
   }else if(commandList[0] == "scan" && commandReceived()){
-    Serial.println('Scanning');
+    Serial.println("Scanning");
     scan();
+  }else if(commandList[0] == "voltage" && commandReceived()){
+    Serial.println("Checking voltage");
+    readVoltage();
+  }else if(commandList[0] == "funMode" && commandReceived()){
+    if (funMode) {
+      solidStateRelay.on();
+      funMode = true;
+    }
   }else if(commandList[0] == "motorTest" && commandReceived()){
     long starttime = millis();
       long endtime = starttime;
