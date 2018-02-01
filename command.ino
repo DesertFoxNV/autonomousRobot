@@ -63,6 +63,9 @@ void runCommand(String commandList[], int numberOfCommands){
     solidStateRelay.on();
   }else if(commandList[0] == "solidStateRelay.off" && commandReceived()){
     solidStateRelay.off();
+  }else if(commandList[0] == "scan" && commandReceived()){
+    Serial.println('Scanning');
+    scan();
   }else if(commandList[0] == "motorTest" && commandReceived()){
     long starttime = millis();
       long endtime = starttime;
@@ -99,84 +102,17 @@ void runCommand(String commandList[], int numberOfCommands){
       solidStateRelay.off();
   }else{
     commandComplete = false;
-    HC12.println("*ER Command \"" + commandList[0] + "\" not recognized!");
+    Serial.println("*ER Command \"" + commandList[0] + "\" not recognized!");
   }
 
   if(commandComplete){
-    HC12.println("*DONE");
+    Serial.println("*DONE");
   }
 }
 
 boolean commandReceived(){
-  HC12.println("*OK");
+  Serial.println("*OK");
   return true;
-}
-
-void getID() {
- HC12.println(deviceID);
-}
-
-void xboxController() {
-  Usb.Task();
-  if (Xbox.XboxReceiverConnected) {
-    for (uint8_t i = 0; i < 4; i++) {
-      if (Xbox.Xbox360Connected[i]) {
-        if (Xbox.getButtonClick(UP, i)) {
-          Xbox.setLedOn(LED1, i);
-          digitalWrite(rightMotorPin1, HIGH);
-          digitalWrite(rightMotorPin2, LOW);
-          digitalWrite(leftMotorPin1, HIGH);
-          digitalWrite(leftMotorPin2, LOW);
-        }
-        if (Xbox.getButtonClick(DOWN, i)) {
-          Xbox.setLedOn(LED3, i);
-          digitalWrite(rightMotorPin1, LOW);
-          digitalWrite(rightMotorPin2, HIGH);
-          digitalWrite(leftMotorPin1, LOW);
-          digitalWrite(leftMotorPin2, HIGH);
-        }
-        
-        if (Xbox.getButtonPress(L2, i) || Xbox.getButtonPress(R2, i)) {
-          Serial.print("L2: ");
-          Serial.print(Xbox.getButtonPress(L2, i));
-          Serial.print("\tR2: ");
-          Serial.println(Xbox.getButtonPress(R2, i));
-
-
-          uint8_t right = Xbox.getButtonPress(L2, i);
-          uint8_t left = Xbox.getButtonPress(R2, i);
-
-          if (right < 50) {
-            right = 0;
-          }
-
-          if (left <50) {
-            left = 0;
-          }
-          
-          Xbox.setRumbleOn(Xbox.getButtonPress(L2, i), Xbox.getButtonPress(R2, i), i);
-          analogWrite(leftMotors, left);
-          analogWrite(rightMotors, right);
-        }
-
-        if (Xbox.getButtonClick(X, i)) {
-           delay(1000);
-            digitalWrite(35, HIGH);
-            for (pos = 40; pos <= 140; pos += 2) { // goes from 0 degrees to 180 degrees
-              // in steps of 1 degree
-              myservo.write(pos);              // tell servo to go to position in variable 'pos'
-              delay(15);                       // waits 15ms for the servo to reach the position
-            }
-            for (pos = 140; pos >= 40; pos -= 2) { // goes from 180 degrees to 0 degrees
-              myservo.write(pos);              // tell servo to go to position in variable 'pos'
-              delay(15);                       // waits 15ms for the servo to reach the position
-            }
-            digitalWrite(35, LOW);
-            delay(1000);
-        }
-      }
-    }
-  }
 }
 
 

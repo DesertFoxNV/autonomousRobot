@@ -16,64 +16,39 @@
 String deviceID = "Ro Ro";
 
 //Libraries
-#include <SoftwareSerial.h>
 #include <binarySwitchDevice.h>
 #include <XBOXRECV.h>
 #ifdef dobogusinclude
 #include <spi4teensy3.h>
 #endif
 #include <SPI.h>
+#include <Servo.h>
 
+// Global Variables
 USB Usb;
 XBOXRECV Xbox(&Usb);
 
-#include <Servo.h>
-
-Servo myservo;  // create servo object to control a servo
-// twelve servo objects can be created on most boards
-
-int pos = 0;    // variable to store the servo position
-
-SoftwareSerial HC12(44, 45); //TX, RX
+Servo laserServo;
 
 binarySwitchDevice solidStateRelay(15, HIGH, LOW);
-
+binarySwitchDevice laser(35, HIGH, LOW);
 
 int speed;
 int direction;
-boolean funMode;
-
-
+boolean funMode = false;
 String msg = "";
+
 void setup() {
-  myservo.attach(37);  // attaches the servo on pin 9 to the servo object
-  solidStateRelay.on();
-  pinMode(rightMotorPin1, OUTPUT);
-  pinMode(rightMotorPin2, OUTPUT);
-  pinMode(rightMotors, OUTPUT);
-  pinMode(leftMotorPin1, OUTPUT);
-  pinMode(leftMotorPin2, OUTPUT);
-  pinMode(leftMotors, OUTPUT);
-  digitalWrite(rightMotorPin1, LOW);
-  digitalWrite(rightMotorPin2, HIGH);
-  digitalWrite(leftMotorPin1, LOW);
-  digitalWrite(leftMotorPin2, HIGH);
+  setPins();
   speed = 0;
   direction = 1;
-  funMode = true;
 
-  if (funMode) {
-    solidStateRelay.on();
-  }
+  Serial.begin(115200);
+  getID();
 
-  HC12.begin(9600);
-//   Serial.begin(115200);
-//#if !defined(__MIPSEL__)
-//  while (!Serial); // Wait for serial port to connect - used on Leonardo, Teensy and other boards with built-in USB CDC serial connection
-//#endif
+  // Check if USB Host Driver Started
   if (Usb.Init() == -1) {
-//    Serial.print(F("\r\nOSC did not start"));
-    while (1); //halt
+    Serial.println(F("\r\nOSC did not start"));
   }
 }
 
@@ -82,8 +57,8 @@ void loop() {
     xboxController();
   } else {
     char characterRead;
-    while (HC12.available()) {        
-    characterRead = char(HC12.read());
+    while (Serial.available()) {        
+    characterRead = char(Serial.read());
       msg = msg + characterRead;
 
       if(characterRead == ')'){
