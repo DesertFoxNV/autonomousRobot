@@ -371,17 +371,25 @@ void checkExploreTimer() {
      Serial.println("Entering explore mode"); 
     }
     explorationTimer = millis() + (exploreMinutes * 60 * 1000);
-    Serial.print("exploreMinutes");
+
+    if (debug) {
+      Serial.print("exploreMinutes");
     Serial.println(exploreMinutes);
     Serial.print("exploreMinutes * 60 * 1000 ");
     Serial.println(exploreMinutes * 60 * 1000);
     Serial.print("millis ");
   Serial.println(millis());
+    }
+    
   }
-  Serial.print("explorationTimer ");
+
+  if (debug) {
+   Serial.print("explorationTimer ");
   Serial.println(explorationTimer);
   Serial.print("millis ");
   Serial.println(millis());
+  }
+ 
 
   if(explorationTimer < millis()) {
     sleeping = true;
