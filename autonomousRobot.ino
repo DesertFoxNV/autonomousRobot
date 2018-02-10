@@ -15,6 +15,12 @@
 #define ultraSonicSensorNumber 4
 #define maxDistance 200 // Maximum distance (in cm) to ping.
 #define PING_INTERVAL 33
+#define MOTORS_FORWARD 1
+#define MOTORS_BACKWARD 2
+#define MOTORS_LEFT 3
+#define MOTORS_RIGHT 4
+#define PIR_SENSOR 46
+#define FUN_MODE_PIN 53
 
 //Device ID
 String deviceID = "Ro Ro";
@@ -22,6 +28,7 @@ String deviceID = "Ro Ro";
 //Libraries
 #include <binarySwitchDevice.h>
 #include <XBOXRECV.h>
+#include <Easing.h>
 #ifdef dobogusinclude
 #include <spi4teensy3.h>
 #endif
@@ -47,11 +54,27 @@ NewPing ultraSonicSensor[ultraSonicSensorNumber] = {   // Sensor object array.
 
 int speed;
 int direction;
+boolean debug = false;
+boolean objectScanned = false;
+boolean objectDetected = false;
+boolean resetSensors = false;
+long sensorResetTimer = 0;
+long sensorResetDelay = 1000; // milliseconds
+int detectionCount = 0;
+int detectionDistance = 40;
+int sideDistance = 10;
+int exploreSpeed = 80;
+boolean lowVoltage = false;
 boolean funMode = false;
 String msg = "";
 unsigned long pingTimer[ultraSonicSensorNumber]; // Holds the times when the next ping should happen for each sensor.
 unsigned int cm[ultraSonicSensorNumber];         // Where the ping distances are stored.
 uint8_t currentSensor = 0;          // Keeps track of which sensor is active.
+double exploreMinutes = 2;
+long explorationTimer = 0;
+long timeOfLastDetection = 0;
+long lowVoltageCount = 50;
+boolean sleeping = true;
 
 void setup() {
   setPins();
@@ -66,25 +89,51 @@ void setup() {
 
   // Check if USB Host Driver Started
   if (Usb.Init() == -1) {
-    Serial.println(F("\r\nOSC did not start"));
+    if (debug) {
+      Serial.println(F("\r\nOSC did not start"));
+    } 
   }
+  
+  solidStateRelay.on();
+
+  Serial.println("Starting in 10 seconds");
+  delay(1000);
+  for(int i = 1; i < 10; i++) {
+    Serial.print(10 - i);
+    Serial.println(" Seconds");
+    delay(1000);
+  }
+
+  if(digitalRead(FUN_MODE_PIN)) {
+    funMode = true;
+  }
+  Serial.println("Entering sleep mode");
 }
 
 void loop() {
-  checkSensors();
+
+  // Check voltage
+  readVoltage();
+
+  // Check if in fun mode
   if (funMode) {
     xboxController();
-  } else {
-    char characterRead;
-    while (Serial.available()) {        
-    characterRead = char(Serial.read());
-      msg = msg + characterRead;
+    return;
+  }
 
-      if(characterRead == ')'){
-       checkCommand(msg);
-       msg="";
-      }
+  // Check and see if robot is in sleep mode
+  if(sleeping) {
+    checkPIR(); // Exit sleep mode if PIR sensor is triggered
+    return;
   }
-  }
+
+  // Check ultrasonic sensors
+  checkUltraSonicSensors();
+
+  // Turn on motors and search for objects with ultra sonic sensors
+  explore();
+
+  checkExploreTimer();
+
+  checkLastDetectionTimer();
 }
-

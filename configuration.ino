@@ -10,10 +10,15 @@ void setPins() {
   pinMode(leftMotorPin1, OUTPUT);
   pinMode(leftMotorPin2, OUTPUT);
   pinMode(leftMotors, OUTPUT);
-  digitalWrite(rightMotorPin1, LOW);
-  digitalWrite(rightMotorPin2, HIGH);
-  digitalWrite(leftMotorPin1, LOW);
-  digitalWrite(leftMotorPin2, HIGH);
+
+  // Set PIR Sensor Input Pin
+  pinMode(PIR_SENSOR, INPUT);
+
+  // Set PIR Sensor Input Pin
+  pinMode(FUN_MODE_PIN, OUTPUT);
+
+  // Set starting motor direction
+  directionType("forward");
 
   // Set Voltage Pin
   pinMode(A8, INPUT);

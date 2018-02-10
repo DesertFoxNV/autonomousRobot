@@ -69,6 +69,10 @@ void runCommand(String commandList[], int numberOfCommands){
   }else if(commandList[0] == "voltage" && commandReceived()){
     Serial.println("Checking voltage");
     readVoltage();
+  }else if(commandList[0] == "direction" && commandReceived()){
+    Serial.print("Changing direction to ");
+    Serial.println(command1);
+    directionType(command1);
   }else if(commandList[0] == "funMode" && commandReceived()){
     if (funMode) {
       solidStateRelay.on();
@@ -80,25 +84,16 @@ void runCommand(String commandList[], int numberOfCommands){
       solidStateRelay.on();
       while ((millis() - starttime) <= 2000) // do this loop for up to 1000mS
       {
-        analogWrite(leftMotors, 250);
-        analogWrite(rightMotors, 250);
+        analogWrite(leftMotors, 100);
+        analogWrite(rightMotors, 100);
       }
       analogWrite(leftMotors, 0);
       analogWrite(rightMotors, 0);
       solidStateRelay.off();
-  }else if(commandList[0] == "turnLeft" && commandReceived()){
-    long starttime = millis();
-      long endtime = starttime;
-      solidStateRelay.on();
-      while ((millis() - starttime) <= 450) // do this loop for up to 1000mS
-      {
-        analogWrite(rightMotors, 200);
-      }
-      analogWrite(leftMotors, 0);
-      analogWrite(rightMotors, 0);
-      solidStateRelay.off();
+  }else if(commandList[0] == "turn" && commandReceived()){
+    turn();
   }else if(commandList[0] == "turnRight" && commandReceived()){
-    long starttime = millis();
+      long starttime = millis();
       long endtime = starttime;
       solidStateRelay.on();
       while ((millis() - starttime) <= 450) // do this loop for up to 1000mS
@@ -122,5 +117,3 @@ boolean commandReceived(){
   Serial.println("*OK");
   return true;
 }
-
-

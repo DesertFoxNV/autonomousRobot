@@ -19,12 +19,13 @@ void xboxController() {
         }
         
         if (Xbox.getButtonPress(L2, i) || Xbox.getButtonPress(R2, i)) {
-          Serial.print("L2: ");
-          Serial.print(Xbox.getButtonPress(L2, i));
-          Serial.print("\tR2: ");
-          Serial.println(Xbox.getButtonPress(R2, i));
-
-
+          if (debug) {
+            Serial.print("L2: ");
+            Serial.print(Xbox.getButtonPress(L2, i));
+            Serial.print("\tR2: ");
+            Serial.println(Xbox.getButtonPress(R2, i));
+          }
+         
           uint8_t right = Xbox.getButtonPress(L2, i);
           uint8_t left = Xbox.getButtonPress(R2, i);
 
